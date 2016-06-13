@@ -11,9 +11,8 @@ class Memcached implements CacheInterface
     /**
      * Connect to Memcached service
      *
-     * @param array $config The unique key of this item in the cache
+     * @param array $config Configuration values that has bucket name and hosts' IP addresses
      *
-     * @return bool The value of the item from the cache, or null in case of cache miss
      */
     public function __construct(array $config)
     {
