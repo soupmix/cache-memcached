@@ -60,7 +60,7 @@ class MemcachedCache implements CacheInterface
      * @return bool True on success and false on failure
      */
     public function delete($key){
-        return $this->handler->delete($key);
+        return (bool) $this->handler->delete($key);
     }
     /**
      * Wipe clean the entire cache's keys
