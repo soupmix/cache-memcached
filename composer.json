@@ -1,0 +1,25 @@
+{
+  "name": "soupmix/cache-memcached",
+  "type": "library",
+  "description": "Framework agnostic Memcached adapter for SimpleCache Interface.",
+  "keywords": ["cache", "adapters", "simplecache", "memcached"],
+  "homepage": "https://github.com/soupmix/cache-base",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mehmet Korkmaz",
+      "email": "dragoonis@php.net",
+      "homepage": "http://www.ppi.io"
+    }
+  ],
+  "require": {
+    "php": ">=5.5",
+    "ext-memcached":"*",
+    "soupmix/cache-base": "~0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Soupmix\\Cache\\": "src/"
+    }
+  }
+}
