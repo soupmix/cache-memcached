@@ -3,7 +3,7 @@
 namespace Soupmix\Cache;
 
 
-class Memcached implements CacheInterface
+class MemcachedCache implements CacheInterface
 {
 
 
