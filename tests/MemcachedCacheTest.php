@@ -1,8 +1,8 @@
 <?php
 namespace tests;
 
-use Soupmix;
-
+use Soupmix\Cache as c;
+Use Memcached;
 class MemcachedCacheTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -12,14 +12,25 @@ class MemcachedCacheTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->client = new Soupmix\Cache\MemcachedCache([
+        $config = [
             'bucket' => 'test',
             'hosts'   => ['127.0.0.1'],
-        ]);
+        ];
+        $handler= new Memcached($config['bucket']);
+        $handler->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
+        $handler->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
+        if (!count($handler->getServerList())) {
+            $hosts = [];
+            foreach ($config['hosts'] as $host) {
+                $hosts[] = [$host, 11211];
+            }
+            $handler->addServers($hosts);
+        }
+        $this->client = new c\MemcachedCache($handler);
         $this->client->clear();
     }
 
-    public function testSetGetDeleteItem()
+    public function testSetGetAndDeleteAnItem()
     {
         $ins1 = $this->client->set('test1','value1');
         $this->assertTrue($ins1);
@@ -29,7 +40,7 @@ class MemcachedCacheTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($delete);
     }
 
-    public function testMultiSetGetDeleteItems()
+    public function testSetGetAndDeleteMultipleItems()
     {
         $cacheData = [
             'test1' => 'value1',
@@ -53,7 +64,7 @@ class MemcachedCacheTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testIncrementDecrementItem()
+    public function testIncrementAndDecrementACounterItem()
     {
         $this->client->set('counter', 0);
         $counter_i_1 = $this->client->increment('counter', 1);

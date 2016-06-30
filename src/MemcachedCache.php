@@ -2,6 +2,7 @@
 
 namespace Soupmix\Cache;
 
+use Memcached;
 
 class MemcachedCache implements CacheInterface
 {
@@ -11,23 +12,14 @@ class MemcachedCache implements CacheInterface
     /**
      * Connect to Memcached service
      *
-     * @param array $config Configuration values that has bucket name and hosts' IP addresses
+     * @param Memcached $handler Memcached handler object
      *
      */
-    public function __construct(array $config)
+    public function __construct(Memcached $handler)
     {
-        $this->handler= new \Memcached($config['bucket']);
-        $this->handler->setOption(\Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
-        $this->handler->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
-        if(\Memcached::HAVE_IGBINARY){
+        $this->handler = $handler;
+        if(Memcached::HAVE_IGBINARY){
             ini_set("memcached.serializer", "igbinary");
-        }
-        if (!count($this->handler->getServerList())) {
-            $hosts = [];
-            foreach ($config['hosts'] as $host) {
-                $hosts[] = [$host, 11211];
-            }
-            $this->handler->addServers($hosts);
         }
     }
     /**

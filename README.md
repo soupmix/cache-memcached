@@ -9,16 +9,28 @@
 It's recommended that you use [Composer](https://getcomposer.org/) to install Soupmix Cache Memcached Adaptor.
 
 ```bash
-$ composer require soupmix/cache-memcached "~0.1"
+$ composer require soupmix/cache-memcached "~0.2"
 ```
 
 ### Connection
 ```
 require_once '/path/to/composer/vendor/autoload.php';
 
-$config = [];
-$config['bucket'] = 'test';
-$config['hosts'] = ['127.0.0.1'];
+$config = [
+    'bucket' => 'test',
+    'hosts'   => ['127.0.0.1'],
+;
+$handler = new Memcached($config['bucket']);
+$handler->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
+$handler->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
+if (!count($handler->getServerList())) {
+    $hosts = [];
+    foreach ($config['hosts'] as $host) {
+        $hosts[] = [$host, 11211];
+    }
+    $handler->addServers($hosts);
+}
+
 $cache = new Soupmix\Cache\MemcachedCache($config);
 ```
 
