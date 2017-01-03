@@ -2,13 +2,16 @@
 
 namespace Soupmix\Cache;
 
+use Soupmix\Cache\Exceptions\InvalidArgumentException;
+use Psr\SimpleCache\CacheInterface;
 use Memcached;
 
 class MemcachedCache implements CacheInterface
 {
 
+    const PSR16_RESERVED_CHARACTERS = ['{','}','(',')','/','@',':'];
 
-    public $handler = null;
+    public $handler;
     /**
      * Connect to Memcached service
      *
@@ -19,109 +22,112 @@ class MemcachedCache implements CacheInterface
     {
         $this->handler = $handler;
         if(Memcached::HAVE_IGBINARY){
-            ini_set("memcached.serializer", "igbinary");
+            ini_set('memcached.serializer', 'igbinary');
         }
     }
+
     /**
-     * Fetch a value from the cache.
-     *
-     * @param string $key The unique key of this item in the cache
-     *
-     * @return mixed The value of the item from the cache, or null in case of cache miss
+     * {@inheritDoc}
      */
-    public function get($key)
+    public function get($key, $default=null)
     {
+
+        $this->checkReservedCharacters($key);
         $value = $this->handler->get($key);
-        return ($value) ? $value : null;
+        return $value ?: $default;
     }
+
     /**
-     * Persist data in the cache, uniquely referenced by a key with an optional expiration TTL time.
-     *
-     * @param string $key The key of the item to store
-     * @param mixed $value The value of the item to store
-     * @param null|integer|DateInterval $ttl Optional. The TTL value of this item. If no value is sent and the driver supports TTL
-     *                                       then the library may set a default value for it or let the driver take care of that.
-     *
-     * @return bool True on success and false on failure
+     * {@inheritDoc}
      */
     public function set($key, $value, $ttl = null){
-        return $this->handler->set($key, $value, intval($ttl));
+
+        $this->checkReservedCharacters($key);
+        return $this->handler->set($key, $value, (int) $ttl);
     }
+
     /**
-     * Delete an item from the cache by its unique key
-     *
-     * @param string $key The unique cache key of the item to delete
-     *
-     * @return bool True on success and false on failure
+     * {@inheritDoc}
      */
     public function delete($key){
+
+        $this->checkReservedCharacters($key);
         return (bool) $this->handler->delete($key);
     }
+
     /**
-     * Wipe clean the entire cache's keys
-     *
-     * @return bool True on success and false on failure
+     * {@inheritDoc}
      */
     public function clear(){
         return $this->handler->flush();
     }
+
     /**
-     * Obtain multiple cache items by their unique keys
-     *
-     * @param array|Traversable $keys A list of keys that can obtained in a single operation.
-     *
-     * @return array An array of key => value pairs. Cache keys that do not exist or are stale will have a value of null.
+     * {@inheritDoc}
      */
-    public function getMultiple($keys)
+    public function getMultiple($keys, $default=null)
     {
-        return $this->handler->getMulti($keys);
+        $defaults = array_fill(0, count($keys), $default);
+        foreach ($keys as $key){
+            $this->checkReservedCharacters($key);
+        }
+        return array_merge($this->handler->getMulti($keys), $defaults);
     }
+
     /**
-     * Persisting a set of key => value pairs in the cache, with an optional TTL.
-     *
-     * @param array|Traversable         $items An array of key => value pairs for a multiple-set operation.
-     * @param null|integer|DateInterval $ttl   Optional. The amount of seconds from the current time that the item will exist in the cache for.
-     *                                         If this is null then the cache backend will fall back to its own default behaviour.
-     *
-     * @return bool True on success and false on failure
+     * {@inheritDoc}
      */
-    public function setMultiple($items, $ttl = null)
+    public function setMultiple($values, $ttl = null)
     {
-        return $this->handler->setMulti($items, intval($ttl));
+        foreach ($values as $key => $value){
+            $this->checkReservedCharacters($key);
+        }
+        return $this->handler->setMulti($values, (int) $ttl);
     }
+
     /**
-     * Delete multiple cache items in a single operation
-     *
-     * @param array|Traversable $keys The array of string-based keys to be deleted
-     *
-     * @return bool True on success and false on failure
+     * {@inheritDoc}
      */
     public function deleteMultiple($keys)
     {
+        foreach ($keys as $key){
+            $this->checkReservedCharacters($key);
+        }
         return $this->handler->deleteMulti($keys);
     }
+
     /**
-     * Increment a value atomically in the cache by its step value, which defaults to 1
-     *
-     * @param string  $key  The cache item key
-     * @param integer $step The value to increment by, defaulting to 1
-     *
-     * @return int|bool The new value on success and false on failure
+     * {@inheritDoc}
      */
     public function increment($key, $step = 1)
     {
         return $this->handler->increment($key, $step);
     }
+
     /**
-     * Decrement a value atomically in the cache by its step value, which defaults to 1
-     *
-     * @param string  $key  The cache item key
-     * @param integer $step The value to decrement by, defaulting to 1
-     *
-     * @return int|bool The new value on success and false on failure
+     * {@inheritDoc}
      */
     public function decrement($key, $step = 1)
     {
         return $this->handler->decrement($key, $step);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function has($key) {
+        $this->checkReservedCharacters($key);
+        $value = $this->handler->get($key);
+        return Memcached::RES_NOTFOUND !== $value->getResultCode();
+    }
+
+    private function checkReservedCharacters($key)
+    {
+        foreach (self::PSR16_RESERVED_CHARACTERS as $needle) {
+            if (strpos($key, $needle) !== false) {
+                $message = sprintf('%s string is not a legal value.', $key);
+                throw new InvalidArgumentException($message);
+            }
+        }
     }
 }

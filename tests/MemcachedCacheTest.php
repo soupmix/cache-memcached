@@ -3,6 +3,7 @@ namespace tests;
 
 use Soupmix\Cache as c;
 Use Memcached;
+
 class MemcachedCacheTest extends \PHPUnit_Framework_TestCase
 {
     /**
