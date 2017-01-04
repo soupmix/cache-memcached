@@ -123,6 +123,10 @@ class MemcachedCache implements CacheInterface
 
     private function checkReservedCharacters($key)
     {
+        if (!is_string($key)) {
+            $message = sprintf('key %s is not a string.', $key);
+            throw new InvalidArgumentException($message);
+        }
         foreach (self::PSR16_RESERVED_CHARACTERS as $needle) {
             if (strpos($key, $needle) !== false) {
                 $message = sprintf('%s string is not a legal value.', $key);
