@@ -12,6 +12,7 @@ class MemcachedCache implements CacheInterface
     const PSR16_RESERVED_CHARACTERS = ['{','}','(',')','/','@',':'];
 
     public $handler;
+    
     /**
      * Connect to Memcached service
      *
