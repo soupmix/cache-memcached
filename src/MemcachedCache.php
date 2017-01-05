@@ -21,7 +21,7 @@ class MemcachedCache implements CacheInterface
     public function __construct(Memcached $handler)
     {
         $this->handler = $handler;
-        if(Memcached::HAVE_IGBINARY){
+        if (defined('Memcached::HAVE_IGBINARY') && extension_loaded('igbinary')) {
             ini_set('memcached.serializer', 'igbinary');
         }
     }
@@ -29,7 +29,7 @@ class MemcachedCache implements CacheInterface
     /**
      * {@inheritDoc}
      */
-    public function get($key, $default=null)
+    public function get($key, $default = null)
     {
 
         $this->checkReservedCharacters($key);
@@ -40,7 +40,8 @@ class MemcachedCache implements CacheInterface
     /**
      * {@inheritDoc}
      */
-    public function set($key, $value, $ttl = null){
+    public function set($key, $value, $ttl = null)
+    {
 
         $this->checkReservedCharacters($key);
         return $this->handler->set($key, $value, (int) $ttl);
@@ -49,7 +50,8 @@ class MemcachedCache implements CacheInterface
     /**
      * {@inheritDoc}
      */
-    public function delete($key){
+    public function delete($key)
+    {
 
         $this->checkReservedCharacters($key);
         return (bool) $this->handler->delete($key);
@@ -58,17 +60,18 @@ class MemcachedCache implements CacheInterface
     /**
      * {@inheritDoc}
      */
-    public function clear(){
+    public function clear()
+    {
         return $this->handler->flush();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getMultiple($keys, $default=null)
+    public function getMultiple($keys, $default = null)
     {
         $defaults = array_fill(0, count($keys), $default);
-        foreach ($keys as $key){
+        foreach ($keys as $key) {
             $this->checkReservedCharacters($key);
         }
         return array_merge($this->handler->getMulti($keys), $defaults);
@@ -79,7 +82,7 @@ class MemcachedCache implements CacheInterface
      */
     public function setMultiple($values, $ttl = null)
     {
-        foreach ($values as $key => $value){
+        foreach ($values as $key => $value) {
             $this->checkReservedCharacters($key);
         }
         return $this->handler->setMulti($values, (int) $ttl);
@@ -90,7 +93,7 @@ class MemcachedCache implements CacheInterface
      */
     public function deleteMultiple($keys)
     {
-        foreach ($keys as $key){
+        foreach ($keys as $key) {
             $this->checkReservedCharacters($key);
         }
         return $this->handler->deleteMulti($keys);
@@ -115,7 +118,8 @@ class MemcachedCache implements CacheInterface
     /**
      * {@inheritDoc}
      */
-    public function has($key) {
+    public function has($key)
+    {
         $this->checkReservedCharacters($key);
         $value = $this->handler->get($key);
         return Memcached::RES_NOTFOUND !== $value->getResultCode();
