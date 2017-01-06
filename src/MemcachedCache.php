@@ -12,7 +12,7 @@ class MemcachedCache implements CacheInterface
     const PSR16_RESERVED_CHARACTERS = ['{','}','(',')','/','@',':'];
 
     public $handler;
-    
+
     /**
      * Connect to Memcached service
      *
@@ -45,6 +45,9 @@ class MemcachedCache implements CacheInterface
     {
 
         $this->checkReservedCharacters($key);
+        if ($ttl instanceof DateInterval) {
+            $ttl = (new DateTime('now'))->add($ttl)->getTimeStamp() - time();
+        }
         return $this->handler->set($key, $value, (int) $ttl);
     }
 
@@ -85,6 +88,9 @@ class MemcachedCache implements CacheInterface
     {
         foreach ($values as $key => $value) {
             $this->checkReservedCharacters($key);
+        }
+        if ($ttl instanceof DateInterval) {
+            $ttl = (new DateTime('now'))->add($ttl)->getTimeStamp() - time();
         }
         return $this->handler->setMulti($values, (int) $ttl);
     }
