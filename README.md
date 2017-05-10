@@ -31,7 +31,7 @@ if (!count($handler->getServerList())) {
     $handler->addServers($hosts);
 }
 
-$cache = new Soupmix\Cache\MemcachedCache($config);
+$cache = new Soupmix\Cache\MemcachedCache($handler);
 ```
 
 
