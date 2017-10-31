@@ -129,7 +129,7 @@ class MemcachedCache implements CacheInterface
     {
         $this->checkReservedCharacters($key);
         $value = $this->handler->get($key);
-        return Memcached::RES_NOTFOUND !== $value->getResultCode();
+        return Memcached::RES_NOTFOUND !== $this->handler->getResultCode();
     }
 
     private function checkReservedCharacters($key)

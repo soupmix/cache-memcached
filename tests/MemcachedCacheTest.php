@@ -87,4 +87,13 @@ class MemcachedCacheTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($clear);
     }
 
+    public function testHasItem()
+    {
+        $has = $this->client->has('has');
+        $this->assertFalse($has);
+        $this->client->set('has', 'value');
+        $has = $this->client->has('has');
+        $this->assertTrue($has);
+    }
+
 }
