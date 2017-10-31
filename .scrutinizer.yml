@@ -8,6 +8,9 @@ build:
   environment:
     php: '7.1'
     memcached: true
+    dependencies:
+        before:
+            - pecl install igbinary
   tests:
     override:
       -
