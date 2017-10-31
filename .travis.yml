@@ -1,6 +1,5 @@
 language: php
 
-sudo: false
 services:
   - memcached
 
@@ -8,6 +7,7 @@ php:
   - 7.1
 
 before_script:
+  - apt-get install libmemcached-dev
   - pecl install memcached
   - composer install -n
 
