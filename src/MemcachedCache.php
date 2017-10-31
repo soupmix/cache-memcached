@@ -5,6 +5,8 @@ namespace Soupmix\Cache;
 use Soupmix\Cache\Exceptions\InvalidArgumentException;
 use Psr\SimpleCache\CacheInterface;
 use Memcached;
+use DateInterval;
+use DateTime;
 
 class MemcachedCache implements CacheInterface
 {

@@ -4,6 +4,7 @@ namespace tests;
 use Soupmix\Cache as c;
 Use Memcached;
 use PHPUnit\Framework\TestCase;
+use DateInterval;
 
 class MemcachedCacheTest extends TestCase
 {
@@ -34,7 +35,7 @@ class MemcachedCacheTest extends TestCase
 
     public function testSetGetAndDeleteAnItem()
     {
-        $ins1 = $this->client->set('test1','value1');
+        $ins1 = $this->client->set('test1','value1', new DateInterval('PT60S'));
         $this->assertTrue($ins1);
         $value1 = $this->client->get('test1');
         $this->assertEquals('value1',$value1);
@@ -50,7 +51,7 @@ class MemcachedCacheTest extends TestCase
             'test3' => 'value3',
             'test4' => 'value4'
         ];
-        $insMulti = $this->client->setMultiple($cacheData);
+        $insMulti = $this->client->setMultiple($cacheData, new DateInterval('PT60S'));
         $this->assertTrue($insMulti);
 
         $getMulti = $this->client->getMultiple(array_keys($cacheData));
