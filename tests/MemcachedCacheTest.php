@@ -5,6 +5,7 @@ use Soupmix\Cache as c;
 Use Memcached;
 use PHPUnit\Framework\TestCase;
 use DateInterval;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class MemcachedCacheTest extends TestCase
 {
@@ -17,9 +18,9 @@ class MemcachedCacheTest extends TestCase
     {
         $config = [
             'bucket' => 'test',
-            'hosts'   => ['127.0.0.1'],
+            'hosts' => ['127.0.0.1'],
         ];
-        $handler= new Memcached($config['bucket']);
+        $handler = new Memcached($config['bucket']);
         $handler->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
         $handler->setOption(Memcached::OPT_BINARY_PROTOCOL, true);
         if (!count($handler->getServerList())) {
@@ -35,10 +36,10 @@ class MemcachedCacheTest extends TestCase
 
     public function testSetGetAndDeleteAnItem()
     {
-        $ins1 = $this->client->set('test1','value1', new DateInterval('PT60S'));
+        $ins1 = $this->client->set('test1', 'value1', new DateInterval('PT60S'));
         $this->assertTrue($ins1);
         $value1 = $this->client->get('test1');
-        $this->assertEquals('value1',$value1);
+        $this->assertEquals('value1', $value1);
         $delete = $this->client->delete('test1');
         $this->assertTrue($delete);
     }
@@ -84,7 +85,8 @@ class MemcachedCacheTest extends TestCase
         $this->assertEquals(0, $counter_d_0);
     }
 
-    public function testClear(){
+    public function testClear()
+    {
         $clear = $this->client->clear();
         $this->assertTrue($clear);
     }
@@ -96,6 +98,25 @@ class MemcachedCacheTest extends TestCase
         $this->client->set('has', 'value');
         $has = $this->client->has('has');
         $this->assertTrue($has);
+    }
+
+    /**
+     * @test
+     * @expectedException InvalidArgumentException
+     */
+    public function failForReservedCharactersInKeyNames()
+    {
+        $this->client->set('@key', 'value');
+    }
+
+    /**
+     * @test
+     * @expectedException InvalidArgumentException
+     */
+    public function failForInvalidStringInKeyNames()
+    {
+        $this->client->set(1, 'value');
+
     }
 
 }
