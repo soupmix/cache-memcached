@@ -1,6 +1,4 @@
 language: php
-sudo: required
-dist: trusty
 
 services:
   - memcached
@@ -9,8 +7,7 @@ php:
   - 7.1
 
 before_script:
-  - sudo apt-get install libmemcached-dev
-  - pecl install memcached
+  -  echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini; fi
   - composer install -n
 
 script:
