@@ -3,8 +3,9 @@ namespace tests;
 
 use Soupmix\Cache as c;
 Use Memcached;
+use PHPUnit\Framework\TestCase;
 
-class MemcachedCacheTest extends \PHPUnit_Framework_TestCase
+class MemcachedCacheTest extends TestCase
 {
     /**
      * @var \Soupmix\Cache\MemcachedCache $client
