@@ -8,7 +8,7 @@ php:
   - 7.1
 
 before_script:
-  - ecl install memcahced
+  - pecl install memcahced
   - composer install -n
 
 script:
